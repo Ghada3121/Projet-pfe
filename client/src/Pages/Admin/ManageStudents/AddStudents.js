@@ -29,7 +29,7 @@ const AddStudents = () => {
         addStudent({
           studentDetails: { ...studentDetails, avatar: url },
           navigate,
-        })
+        }),
       );
     } else {
       dispatch(addStudent({ studentDetails, navigate }));

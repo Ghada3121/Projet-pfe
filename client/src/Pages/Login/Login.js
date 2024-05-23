@@ -9,10 +9,14 @@ import { errorToast } from "../../utils";
 import admin from "./images/admin.png";
 import student from "./images/student.png";
 import prof from "./images/prof.png";
+import { Capture, useCapture } from "./camera";
+
 const Login = () => {
+  const { capture } = useCapture();
+
   const navigate = useNavigate();
   const { loading, isAuth, role, error } = useSelector(
-    (state) => state.LoginReducer
+    (state) => state.LoginReducer,
   );
 
   const dispatch = useDispatch();
@@ -31,14 +35,16 @@ const Login = () => {
       errorToast("Email Not Valid");
     }
     e.preventDefault();
+    console.log(capture());
     dispatch(
       login({
         loginDetails: {
           ...loginDetails,
           role: profile.find((el) => el.active === true).name,
+          face: capture(),
         },
         navigate,
-      })
+      }),
     );
   };
 
@@ -64,7 +70,7 @@ const Login = () => {
   ]);
   const changeActiveProfile = (id) => {
     const updatedProfile = profile.map((item) =>
-      item.id === id ? { ...item, active: true } : { ...item, active: false }
+      item.id === id ? { ...item, active: true } : { ...item, active: false },
     );
     setProfile(updatedProfile);
   };
@@ -116,6 +122,7 @@ const Login = () => {
                 <i className="fa-regular fa-lock" />
               </span>
             </div>
+
             <div className="field pb-10">
               <div className="">
                 <p style={{ color: "#999" }}>
@@ -152,4 +159,10 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default function () {
+  return (
+    <Capture>
+      <Login />
+    </Capture>
+  );
+}

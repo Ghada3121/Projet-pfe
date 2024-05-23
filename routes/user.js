@@ -9,6 +9,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const nodemailer = require("nodemailer");
+const { matchFace } = require("../recon");
 
 cloudinary.config({
   cloud_name: "",
@@ -72,7 +73,7 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, face } = req.body;
     const findUser = await User.findOne({ email: email });
     if (findUser.role.toLowerCase() !== role.toLowerCase()) {
       return res
@@ -80,8 +81,16 @@ router.post("/login", async (req, res) => {
         .json({ message: `this email does not exist for ${role} type` });
     }
     if (findUser) {
-      bcrypt.compare(password, findUser.password).then(function (result) {
+      bcrypt.compare(password, findUser.password).then(async function (result) {
         if (result == true) {
+          // face recognition
+          const faceMatches = await matchFace(findUser.avatar, face);
+          console.log(faceMatches);
+
+          if (!faceMatches) {
+            return res.status(401).json({ message: "Face not matched" });
+          }
+
           jwt.sign(
             {
               username: findUser.username,
@@ -101,7 +110,7 @@ router.post("/login", async (req, res) => {
                   .status(200)
                   .json({ message: "Logged Successfully", data: token });
               }
-            }
+            },
           );
         } else {
           res.status(404).json({ message: "password wrong ! " });

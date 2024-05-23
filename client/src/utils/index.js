@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-export const url = "http://localhost:5000";
+export const url = "http://localhost:4003";
 
 export const errorToast = (err) => {
   toast.error(err, {
@@ -67,7 +67,7 @@ const upload = async (file) => {
   try {
     const res = await axios.post(
       "https://api.cloudinary.com/v1_1/dzcf29ead/upload",
-      data
+      data,
     );
 
     const { url } = res.data;
